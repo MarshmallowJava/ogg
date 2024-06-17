@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 上位ストリームから流れるデータをoggコンテナとして読み込みデータを下位ストリームに流します
@@ -59,6 +60,10 @@ public class OggInputStream extends InputStream{
         Collections.sort(pages);
 
         return false;
+    }
+
+    public Set<Integer> getSerialNumbers(){
+        return this.pages.keySet();
     }
 
     @Override
