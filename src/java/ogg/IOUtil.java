@@ -11,7 +11,10 @@ public class IOUtil{
         Map<String, Data> data = new HashMap<>();
 
         for(Tag tag : tags){
-            data.put(tag.getName(), new Data(read(in, tag.getSize())));
+            byte[] buf = read(in, tag.getSize());
+            if(buf == null) return null;
+            
+            data.put(tag.getName(), new Data(buf));
         }
 
         return data;
@@ -19,7 +22,9 @@ public class IOUtil{
 
     public static byte[] read(InputStream in, int length) throws IOException{
         byte[] buf = new byte[length];
-        in.read(buf, 0, length);
+        if(in.read(buf, 0, length) != length){
+            return null;
+        }
 
         return buf;
     }

@@ -2,7 +2,7 @@ package ogg;
 
 import java.util.Map;
 
-public class OggPage {
+public class OggPage implements Comparable<OggPage>{
 
     public static final Tag[] HEADER = new Tag[]{
         new Tag("capture_pattern", 4),
@@ -64,7 +64,12 @@ public class OggPage {
         return this.crc_checksum;
     }
 
-    public byte getPageSequenceCount(){
+    public byte getPageSegmentSize(){
         return this.number_page_segments;
+    }
+
+    @Override
+    public int compareTo(OggPage page){
+        return this.getPageSequenceNumber() - page.getPageSequenceNumber();
     }
 }
