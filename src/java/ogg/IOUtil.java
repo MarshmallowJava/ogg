@@ -11,12 +11,16 @@ public class IOUtil{
         Map<String, Data> data = new HashMap<>();
 
         for(Tag tag : tags){
-            byte[] buf = new byte[tag.getSize()];
-            in.read(buf, 0, buf.length);
-
-            data.put(tag.getName(), new Data(buf));
+            data.put(tag.getName(), new Data(read(in, tag.getSize())));
         }
 
         return data;
+    }
+
+    public static byte[] read(InputStream in, int length) throws IOException{
+        byte[] buf = new byte[length];
+        in.read(buf, 0, length);
+
+        return buf;
     }
 }
