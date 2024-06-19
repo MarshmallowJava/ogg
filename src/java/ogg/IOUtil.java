@@ -20,7 +20,7 @@ public class IOUtil{
         return data;
     }
 
-    public static byte[] read(InputStream in, int length) throws IOException{
+    private static byte[] read(InputStream in, int length) throws IOException{
         byte[] buf = new byte[length];
         if(in.read(buf, 0, length) != length){
             return null;

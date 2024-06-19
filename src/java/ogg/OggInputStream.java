@@ -1,6 +1,5 @@
 package ogg;
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -18,10 +17,10 @@ public class OggInputStream extends InputStream{
     private InputStream in;
 
     private Map<Integer, List<OggPage>> pages = new HashMap<>();
-    private Map<OggPage, byte[][]> dataset = new HashMap<>();
+    private Map<OggPage, int[][]> dataset = new HashMap<>();
     private int current_page_number;
 
-    private byte[][] data;
+    private int[][] data;
     private int off, off2, off3;
 
     /**
@@ -48,16 +47,21 @@ public class OggInputStream extends InputStream{
             sizelist[i] = in.read();
         }
 
-        byte[][] dataset = new byte[sizelist.length][];
+        int[][] dataset = new int[sizelist.length][];
         for(int i = 0;i < dataset.length;i++){
-            dataset[i] = IOUtil.read(in, sizelist[i]);
+            dataset[i] = new int[sizelist[i]];
+
+            for(int j = 0;j < sizelist[i];j++){
+                dataset[i][j] = this.in.read();
+            }
         }
 
-        if(! this.pages.containsKey(page.getSerialNumber())) this.pages.put(page.getSerialNumber(), new ArrayList<>());
-        List<OggPage> pages = this.pages.get(page.getSerialNumber());
+        List<OggPage> pages = this.getCurrentList();
         pages.add(page);
 
         Collections.sort(pages);
+
+        this.dataset.put(page, dataset);
 
         return false;
     }
@@ -68,33 +72,49 @@ public class OggInputStream extends InputStream{
 
     @Override
     public int read() throws IOException{
-        if(this.off3 == this.data[this.off2].length){
-            this.off2++;
-            this.off3 = 0;
-            if(this.off2 == this.data.length){
-                this.off++;
-                this.off2 = 0;
-
-                List<OggPage> pages = this.pages.get(this.current_page_number);
-
-                load:while(true){
-
-                    //search for available data
-                    for(OggPage page : pages){
-                        if(page.getSerialNumber() == this.off) break load;
-                    }
-
-                    //EOF
-                    if(this.readPage()){
-                        return -1;
-                    }
-                }
-
-                this.data = this.dataset.remove(pages.remove(0));
-            }
+        if(this.data == null){
+            if(!this.loadPage()) return -1;
+        }else if(this.off3 == this.data[this.off2].length){
+            do{
+                this.off2++;
+                this.off3 = 0;
+                if(this.off2 == this.data.length){
+                    this.off++;
+                    this.off2 = 0;
+    
+                    if(!this.loadPage()) return -1;
+                }    
+            }while(this.data[this.off2].length == 0);
         }
 
         return this.data[this.off2][this.off3++];
+    }
+
+    private boolean loadPage() throws IOException{
+        List<OggPage> pages = this.getCurrentList();
+
+        load:while(true){
+            //search for available data
+            for(OggPage page : pages){
+                if(page.getPageSequenceNumber() == this.off) break load;
+            }
+
+            //EOF
+            if(this.readPage()){
+                return false;
+            }            
+        }
+
+        this.data = this.dataset.remove(pages.remove(0));
+
+        return true;
+    }
+
+    private List<OggPage> getCurrentList(){
+        int number = this.current_page_number;
+
+        if(! this.pages.containsKey(number)) this.pages.put(number, new ArrayList<>());
+        return this.pages.get(number);
     }
 
     @Override
