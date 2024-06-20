@@ -56,7 +56,7 @@ public class OggInputStream extends InputStream{
             }
         }
 
-        List<OggPage> pages = this.getCurrentList();
+        List<OggPage> pages = this.getList(page.getSerialNumber());
         pages.add(page);
 
         Collections.sort(pages);
@@ -102,7 +102,7 @@ public class OggInputStream extends InputStream{
             //EOF
             if(this.readPage()){
                 return false;
-            }            
+            }
         }
 
         this.data = this.dataset.remove(pages.remove(0));
@@ -111,8 +111,10 @@ public class OggInputStream extends InputStream{
     }
 
     private List<OggPage> getCurrentList(){
-        int number = this.current_page_number;
+        return this.getList(this.current_page_number);
+    }
 
+    public List<OggPage> getList(int number){
         if(! this.pages.containsKey(number)) this.pages.put(number, new ArrayList<>());
         return this.pages.get(number);
     }
