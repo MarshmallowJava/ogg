@@ -25,8 +25,7 @@ public class OggPage implements Comparable<OggPage>{
     private int bitstream_serial_number;
     private int page_squence_number;
     private int crc_checksum;
-
-    private byte number_page_segments;
+    private int number_page_segments;
 
     public OggPage(Map<String, Data> data){
         if(! data.get("capture_pattern").asText().equals(MAGIC)) throw new RuntimeException();
@@ -37,7 +36,7 @@ public class OggPage implements Comparable<OggPage>{
         this.bitstream_serial_number = data.get("bitstream_serial_number").asLittleEndianInt();
         this.page_squence_number = data.get("page_squence_number").asLittleEndianInt();
         this.crc_checksum = data.get("crc_checksum").asLittleEndianInt();
-        this.number_page_segments = data.get("number_page_segments").getRawData()[0];
+        this.number_page_segments = Byte.toUnsignedInt(data.get("number_page_segments").getRawData()[0]);
     }
 
     public byte getVersion(){
@@ -64,7 +63,7 @@ public class OggPage implements Comparable<OggPage>{
         return this.crc_checksum;
     }
 
-    public byte getPageSegmentSize(){
+    public int getPageSegmentSize(){
         return this.number_page_segments;
     }
 
