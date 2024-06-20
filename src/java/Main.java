@@ -10,8 +10,9 @@ import ogg.OggInputStream;
 public class Main{
 
     public static void main(String[] args){
-        try (FileInputStream fis = new FileInputStream("data.ogg");BufferedInputStream bis = new BufferedInputStream(fis);OggInputStream ois = new OggInputStream(bis);FileOutputStream fos = new FileOutputStream(new File("result.txt"));BufferedOutputStream bos = new BufferedOutputStream(fos);){
-            ois.setPageNumber(735);
+        try (FileInputStream fis = new FileInputStream("13.ogg");BufferedInputStream bis = new BufferedInputStream(fis);OggInputStream ois = new OggInputStream(bis);FileOutputStream fos = new FileOutputStream(new File("result.txt"));BufferedOutputStream bos = new BufferedOutputStream(fos);){
+            //最初のページのシリアルナンバーを利用
+            ois.setPageNumber(ois.readPage().getSerialNumber());
 
             int data;
             while((data = ois.read()) != -1){

@@ -36,9 +36,9 @@ public class OggInputStream extends InputStream{
         this.current_page_number = number;
     }
 
-    public boolean readPage() throws IOException{
+    public OggPage readPage() throws IOException{
         Map<String, Data> result = IOUtil.readData(this.in, OggPage.HEADER);
-        if(result == null) return true;
+        if(result == null) return null;
 
         OggPage page = new OggPage(result);
     
@@ -63,7 +63,7 @@ public class OggInputStream extends InputStream{
 
         this.dataset.put(page, dataset);
 
-        return false;
+        return page;
     }
 
     public Set<Integer> getSerialNumbers(){
@@ -100,7 +100,7 @@ public class OggInputStream extends InputStream{
             }
 
             //EOF
-            if(this.readPage()){
+            if(this.readPage() == null){
                 return false;
             }
         }
